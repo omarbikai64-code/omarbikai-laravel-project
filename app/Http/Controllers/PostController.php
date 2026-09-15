@@ -4,30 +4,99 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Post;
+use App\Models\Tag;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
     public function index()
     {
-        // 1. Basic Listing: Retrieve all records ordered by creation date
         $latestPosts = Post::latest()->get();
-
-        // 2. Filtered Query: Retrieve only records matching a specific condition
         $publishedPosts = Post::where('status', 'published')->get();
-
-        // 3. Relationship Eager Loading: Fetch main records with category to prevent N+1
         $eagerLoadedPosts = Post::with(['category', 'tags'])->latest()->get();
+        $popularCategories = Category::has('posts', '>=', 3)->withCount('posts')->get();
 
-        // 4. Nested / Condition Query: Categories having at least 3 associated posts
-        $popularCategories = Category::has('posts', '>=', 3)
-            ->withCount('posts')
-            ->get();
+        return view('posts.index', compact('latestPosts', 'publishedPosts', 'eagerLoadedPosts', 'popularCategories'));
+    }
 
-        return view('posts.index', compact(
-            'latestPosts',
-            'publishedPosts',
-            'eagerLoadedPosts',
-            'popularCategories'
-        ));
+    public function create()
+    {
+        $categories = Category::all();
+        $tags = Tag::all();
+
+        return view('posts.create', compact('categories', 'tags'));
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title'       => 'required|string|min:5|max:255',
+            'description' => 'required|string|min:15',
+            'category_id' => 'required|exists:categories,id',
+            'status'      => 'required|in:draft,published,archived',
+            'image'       => 'nullable|image|mimes:jpg,png,webp|max:2048',
+            'tags'        => 'nullable|array',
+            'tags.*'      => 'exists:tags,id',
+        ]);
+
+        if ($request->hasFile('image')) {
+            $validated['image'] = $request->file('image')->store('posts', 'public');
+        }
+
+        $post = Post::create($validated);
+
+        // Attach tags to the new post in the pivot table
+        $post->tags()->sync($request->input('tags', []));
+
+        return redirect()->route('posts.index')->with('success', 'Post created successfully!');
+    }
+
+    public function edit(Post $post)
+    {
+        $categories = Category::all();
+        $tags = Tag::all();
+
+        return view('posts.edit', compact('post', 'categories', 'tags'));
+    }
+
+    public function update(Request $request, Post $post)
+    {
+        $validated = $request->validate([
+            'title'       => 'required|string|min:5|max:255',
+            'description' => 'required|string|min:15',
+            'category_id' => 'required|exists:categories,id',
+            'status'      => 'required|in:draft,published,archived',
+            'image'       => 'nullable|image|mimes:jpg,png,webp|max:2048',
+            'tags'        => 'nullable|array',
+            'tags.*'      => 'exists:tags,id',
+        ]);
+
+        if ($request->hasFile('image')) {
+            if ($post->image) {
+                Storage::disk('public')->delete($post->image);
+            }
+            $validated['image'] = $request->file('image')->store('posts', 'public');
+        }
+
+        $post->update($validated);
+
+        // Update tags in the pivot table
+        $post->tags()->sync($request->input('tags', []));
+
+        return redirect()->route('posts.index')->with('success', 'Post updated successfully!');
+    }
+
+    public function destroy(Post $post)
+    {
+        if ($post->image) {
+            Storage::disk('public')->delete($post->image);
+        }
+
+        // Detach associated tags before deleting
+        $post->tags()->detach();
+        $post->delete();
+
+        return redirect()->route('posts.index')->with('success', 'Post deleted successfully!');
     }
 }
