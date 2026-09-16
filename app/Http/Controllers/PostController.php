@@ -15,7 +15,7 @@ class PostController extends Controller
         $latestPosts = Post::latest()->get();
         $publishedPosts = Post::where('status', 'published')->get();
         $eagerLoadedPosts = Post::with(['category', 'tags'])->latest()->get();
-        $popularCategories = Category::has('posts', '>=', 3)->withCount('posts')->get();
+        $popularCategories = Category::has('posts', '>=', 1)->withCount('posts')->get();
 
         return view('posts.index', compact('latestPosts', 'publishedPosts', 'eagerLoadedPosts', 'popularCategories'));
     }
@@ -45,8 +45,6 @@ class PostController extends Controller
         }
 
         $post = Post::create($validated);
-
-        // Attach tags to the new post in the pivot table
         $post->tags()->sync($request->input('tags', []));
 
         return redirect()->route('posts.index')->with('success', 'Post created successfully!');
@@ -80,8 +78,6 @@ class PostController extends Controller
         }
 
         $post->update($validated);
-
-        // Update tags in the pivot table
         $post->tags()->sync($request->input('tags', []));
 
         return redirect()->route('posts.index')->with('success', 'Post updated successfully!');
@@ -93,7 +89,6 @@ class PostController extends Controller
             Storage::disk('public')->delete($post->image);
         }
 
-        // Detach associated tags before deleting
         $post->tags()->detach();
         $post->delete();
 
