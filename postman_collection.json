@@ -1,0 +1,175 @@
+{
+	"info": {
+		"_postman_id": "a8f3b2d1-9876-4321-abcd-1234567890ab",
+		"name": "Blog CMS REST API v1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Posts",
+			"item": [
+				{
+					"name": "Get All Posts (Paginated + Filtered)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-API-TOKEN",
+								"value": "{{API_TOKEN}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BASE_URL}}/api/v1/posts?category_id=1&page=1",
+							"host": ["{{BASE_URL}}"],
+							"path": ["api", "v1", "posts"],
+							"query": [
+								{ "key": "category_id", "value": "1" },
+								{ "key": "tag_id", "value": "1", "disabled": true },
+								{ "key": "page", "value": "1" }
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Single Post",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": "{{BASE_URL}}/api/v1/posts/1"
+					}
+				},
+				{
+					"name": "Create Post",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Building Robust APIs in Laravel 12\",\n  \"description\": \"Comprehensive guide to building public RESTful APIs with token auth.\",\n  \"category_id\": 1,\n  \"status\": \"published\",\n  \"tags\": [1, 2]\n}"
+						},
+						"url": "{{BASE_URL}}/api/v1/posts"
+					}
+				},
+				{
+					"name": "Update Post",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Building Updated REST APIs in Laravel 12\",\n  \"description\": \"Updated description text with more details.\",\n  \"category_id\": 1,\n  \"status\": \"published\"\n}"
+						},
+						"url": "{{BASE_URL}}/api/v1/posts/1"
+					}
+				},
+				{
+					"name": "Delete Post",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": "{{BASE_URL}}/api/v1/posts/1"
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get Categories (with posts_count)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": "{{BASE_URL}}/api/v1/categories"
+					}
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"DevOps & Cloud\"\n}"
+						},
+						"url": "{{BASE_URL}}/api/v1/categories"
+					}
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": "{{BASE_URL}}/api/v1/categories/1"
+					}
+				}
+			]
+		},
+		{
+			"name": "Tags",
+			"item": [
+				{
+					"name": "Get Tags",
+					"request": {
+						"method": "GET",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" }
+						],
+						"url": "{{BASE_URL}}/api/v1/tags"
+					}
+				},
+				{
+					"name": "Create Tag",
+					"request": {
+						"method": "POST",
+						"header": [
+							{ "key": "X-API-TOKEN", "value": "{{API_TOKEN}}" },
+							{ "key": "Accept", "value": "application/json" },
+							{ "key": "Content-Type", "value": "application/json" }
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Docker\"\n}"
+						},
+						"url": "{{BASE_URL}}/api/v1/tags"
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{ "key": "BASE_URL", "value": "http://127.0.0.1:8000" },
+		{ "key": "API_TOKEN", "value": "sk_C1dntDkFez3jqwG2XVxY2hJhMCyRgq7D" }
+	]
+}
